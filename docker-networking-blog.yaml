@@ -1,0 +1,49 @@
+
+Docker Networking
+
+Every Programmer Should Understand: Docker Networking
+
+What is Docker Networking: 
+It's the ability of a container to communicate with each other, or to non-Docker workloads.
+
+1. Bridge Network (Default):
+Like a real bridge that connects two roads so we can go back and forth, likewise, a bridge network in docker connects its containers to each other so they can communicate easily. A bridge can be a hardware device or a software device running within a host machine's kernel. In terms of Docker, a bridge network uses a software bridge. The Docker bridge network automatically isolates its containers from the other containers that are outside of this network. If you didn't specify any network, Docker put your containers on this default bridge network. The one main limitation of the default bridge network is, that its containers can talk to each other using their IP Addresses not by names. For name-based communication, we can create our own user-defined network.
+
+2. User-Defined Network: 
+In a user-defined network, we have automatic DNS resolution, so our containers inside this network can talk to each other by their names. User-defined bridges provide better isolation than default bridge networks.
+
+3. Host Network: 
+In a Host Network, there is no middle layer between the docker container and the host. Our container is directly connected to the host network. Our container doesn't get its own IP Address, and any port mapping doesn't take effect. Using our host network's IP Address we can access our container directly.
+
+4. MACvlan: 
+In a MACvlan network, our containers are directly connected to our physical network, rather than routed through the Docker host's network. Each container inside this network gets its own MAC Address and IP Address. The Docker daemon routes traffic to containers by their MAC addresses. MACvlan supports:
+ - A. Bridge mode: where MACvlan traffic goes through a physical device on the host.
+ - B. 802.1Q trunk bridge mode: where traffic uses a dynamically created 802.1Q sub-interface.
+ - Note: We can have multiple containers that are connected on the same port of the physical network, to manage that we may need to enable Promiscuous mode. 
+
+5. IPvlan: 
+The IPvlan driver gives users total control over both IPv4 and IPv6 addressing. We have two modes in the IPvlan driver:
+ - A. IPvlan L2: In this mode each container inside this network has its own IP Address. But the MAC Address is the same as our host network. Each container is connected to our physical network directly, but because of the MAC address, we don't need any Promiscuous mode. In this mode, Containers can receive and respond to ARP requests. 
+ - B. IPvlan L3: In this mode each container inside this network has its own IP Address. But the MAC Address is the same as our host network. It connects with our host network and each IPvlan L3 network can talk to another L3 network. But the catch is this, it is not exposed to the outside world, neither to the internet nor to our physical network. To talk with our container we need to use our physical network as a router. In this mode, containers do not respond to ARP requests and manual configuration of neighbor entries is required for communication between peers.
+
+6. Overlay Network: 
+Overlay networks connect multiple Docker daemons together and enable Swarm services and containers to communicate across nodes. This strategy removes the need to do OS-level routing.
+
+7. None Network: 
+It completely isolates the networking stack of a container. Within the container, only the loopback device is created.
+
+--------------------
+
+Bridge Network (Default): a bridge network is a Link Layer device which forwards traffic between network segments. A bridge can be a hardware device or a software device running within a host machine's kernel. In terms of Docker, a bridge network uses a software bridge which lets containers connected to the same bridge network communicate, while providing isolation from containers that aren't connected to that bridge network. The Docker bridge driver automatically installs rules in the host machine so that containers on different bridge networks can't communicate directly with each other. Bridge networks are commonly used when your application runs in a container that needs to communicate with other containers on the same host.
+
+User Defined Network: User-defined bridges provide automatic DNS resolution between containers. Containers on the default bridge network can only access each other by IP addresses, unless you use the --link option, which is considered legacy. On a user-defined bridge network, containers can resolve each other by name or alias. User-defined bridges provide better isolation.
+
+Host Network: This container's network stack isn't isolated from the Docker host (the container shares the host's networking namespace), and the container doesn't get its own IP-address allocated. For instance, if you run a container which binds to port 80 and you use host networking, the container's application is available on port 80 on the host's IP address. Given that the container does not have its own IP-address when using host mode networking, port-mapping doesn't take effect.
+
+MACvlan: Macvlan networks allow you to assign a MAC address to a container, making it appear as a physical device on your network. The Docker daemon routes traffic to containers by their MAC addresses. Using the macvlan driver is sometimes the best choice when dealing with legacy applications that expect to be directly connected to the physical network, rather than routed through the Docker host's network stack.
+
+Overlay Network: Overlay networks connect multiple Docker daemons together and enable Swarm services and containers to communicate across nodes. This strategy removes the need to do OS-level routing.
+
+None Network: It completely isolate the networking stack of a container. Within the container, only the loopback device is created.
+
+IPvlan: The IPvlan driver gives users total control over both IPv4 and IPv6 addressing.
